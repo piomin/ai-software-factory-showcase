@@ -1,0 +1,35 @@
+# Build output
+target/
+*.class
+*.jar
+*.war
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+
+# Logs and OS files
+*.log
+.DS_Store
+
+# Secrets
+.env
+
+# Agent infrastructure (local reference only, not part of the system)
+pipeline.yaml
+.agent-summary.md
+
+# Frontend (React + Vite, built via frontend-maven-plugin)
+node_modules/
+dist/
+frontend/node/
+coverage/
+*.tsbuildinfo
+npm-debug.log*
+
+# Private keys
+*.pem
