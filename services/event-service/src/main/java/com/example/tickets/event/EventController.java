@@ -1,6 +1,6 @@
 package com.example.tickets.event;
 
-import org.springframework.http.ProblemDetail;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,9 +21,9 @@ class EventController {
     }
 
     @GetMapping("/{id}")
-    Object getEvent(@PathVariable long id) {
+    ResponseEntity<Event> getEvent(@PathVariable long id) {
         return eventRepository.findById(id)
-                .<Object>map(event -> event)
-                .orElseGet(() -> ProblemDetail.forStatus(404));
+                .map(ResponseEntity::ok)
+                .orElseThrow(() -> new EventNotFoundException(id));
     }
 }
