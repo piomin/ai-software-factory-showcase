@@ -1,0 +1,47 @@
+version: 2.1
+
+executors:
+  default:
+    docker:
+      - image: cimg/openjdk:21.0
+
+jobs:
+  build-and-test:
+    executor: default
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-m2-{{ checksum "pom.xml" }}-{{ checksum "services/event-service/pom.xml" }}-{{ checksum "services/booking-service/pom.xml" }}-{{ checksum "frontend/pom.xml" }}
+            - v1-m2-
+      - restore_cache:
+          keys:
+            - v1-node-{{ checksum "frontend/package-lock.json" }}
+            - v1-node-
+      - run:
+          name: Run Maven build and tests
+          command: mvn -B -ntp verify
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: v1-m2-{{ checksum "pom.xml" }}-{{ checksum "services/event-service/pom.xml" }}-{{ checksum "services/booking-service/pom.xml" }}-{{ checksum "frontend/pom.xml" }}
+      - save_cache:
+          paths:
+            - frontend/node
+            - frontend/node_modules
+          key: v1-node-{{ checksum "frontend/package-lock.json" }}
+      - store_test_results:
+          path: "**/target/surefire-reports"
+      - store_artifacts:
+          path: "**/target/surefire-reports"
+
+workflows:
+  build:
+    jobs:
+      - build-and-test:
+          filters:
+            branches:
+              only:
+                - master
+            tags:
+              ignore: /.*/
