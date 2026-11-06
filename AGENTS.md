@@ -4,7 +4,7 @@ These rules apply to every AI coding agent working in this repository (e.g. Open
 
 ## Project
 
-A showcase system developed largely by AI agents. Backend: **Java + Spring Boot microservices**, built with **Maven**. Frontend: **React + Vite + TypeScript**, living in a Maven module. Each module's `pom.xml` is the source of truth for Java and Spring Boot versions.
+A showcase system developed largely by AI agents. Backend: **Java + Spring Boot microservices**, built with **Maven**. Frontend: **Vue 3 + Vite + TypeScript**, living in a Maven module. Each module's `pom.xml` is the source of truth for Java and Spring Boot versions.
 
 ### Repository layout
 
@@ -14,7 +14,7 @@ Maven multi-module repo (aggregator `pom.xml` in the root):
 pom.xml                  parent / aggregator
 services/<name>-service/ Spring Boot microservice (one module per service)
 gateway/                 single entry point for the frontend (Spring Cloud Gateway / BFF)
-frontend/                React + Vite app, built by frontend-maven-plugin
+frontend/                Vue 3 + Vite app, built by frontend-maven-plugin
 ```
 
 - Every service and the frontend is its own Maven module, so `mvn -q test-compile -pl <module> -am` works for all of them.
@@ -22,7 +22,7 @@ frontend/                React + Vite app, built by frontend-maven-plugin
 
 ### Architecture rules
 
-- The frontend talks **only to the gateway**, never directly to a service.
+- The frontend talks **only to the gateway**, never directly to a service. (Until the `gateway` module exists, the Vite dev proxy stands in for it.)
 - Services communicate through REST (or messaging when the issue says so); each service owns its data and does not read another service's database.
 - Every service exposes an **OpenAPI** contract. The frontend API client is generated from / kept in sync with it. A change to a service's API must update the frontend client in the same task.
 
@@ -98,11 +98,11 @@ Do not paste diffs or long explanations into the comment.
 - Use `RestClient` for HTTP calls to other services, Flyway for relational schema changes (never edit an applied migration; add a new one), and Bean Validation on request DTOs.
 - Tests: JUnit 5 + Mockito; `@WebMvcTest` / `@DataJpaTest` for slices, Testcontainers for integration tests where a real database or broker is needed.
 
-### Frontend (React + Vite)
+### Frontend (Vue 3 + Vite)
 
-- **TypeScript only**, `strict` mode on; no `any` (use `unknown` and narrow). Functional components and hooks, no class components.
+- **TypeScript only**, `strict` mode on; no `any` (use `unknown` and narrow). Vue 3 Composition API with `<script setup lang="ts">`; no Options API.
 - Calls to the backend go through the generated/typed API client in one place (e.g. `src/api/`), not ad-hoc `fetch` calls in components. Base URL points at the gateway.
-- Tests with **Vitest** and React Testing Library; test behavior (what the user sees), not implementation details.
+- Tests with **Vitest** and Vue Test Utils; test behavior (what the user sees), not implementation details.
 - The frontend is built and tested **through Maven** (`frontend-maven-plugin`: `npm ci`, `npm run build`, `npm test`), so `mvn -q test-compile -pl frontend -am` must pass. Do not rely on a globally installed Node.
 - Commit `package.json` and `package-lock.json`; never commit `node_modules/`, `dist/` or `frontend/node/`. Add new npm dependencies only when the issue needs them, with pinned/locked versions.
 - The pipeline has no web access for the agent: do not try to fetch docs or packages ad hoc; use dependencies already in the lockfile unless the issue requires a new one.
