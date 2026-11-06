@@ -22,8 +22,7 @@ class EventController {
 
     @GetMapping("/{id}")
     Object getEvent(@PathVariable long id) {
-        return eventRepository.findById(id)
-                .<Object>map(event -> event)
-                .orElseGet(() -> ProblemDetail.forStatus(404));
+        Event event = eventRepository.findById(id).orElse(null);
+        return event != null ? event : ProblemDetail.forStatus(404);
     }
 }

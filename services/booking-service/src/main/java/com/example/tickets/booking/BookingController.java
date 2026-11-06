@@ -29,8 +29,7 @@ class BookingController {
 
     @GetMapping("/{id}")
     Object getBooking(@PathVariable long id) {
-        return bookingRepository.findById(id)
-                .<Object>map(booking -> booking)
-                .orElseGet(() -> ProblemDetail.forStatus(HttpStatus.NOT_FOUND.value()));
+        Booking booking = bookingRepository.findById(id).orElse(null);
+        return booking != null ? booking : ProblemDetail.forStatus(HttpStatus.NOT_FOUND.value());
     }
 }

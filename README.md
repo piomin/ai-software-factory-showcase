@@ -40,3 +40,12 @@ cd frontend && npm run dev
 ```
 
 Then open http://localhost:5173 in your browser.
+
+## Database
+
+Both services use H2 in-memory databases with Flyway migrations:
+
+- **event-service**: `jdbc:h2:mem:events`
+- **booking-service**: `jdbc:h2:mem:bookings`
+
+Flyway automatically applies migrations on startup. To enable the H2 console for local debugging, set `spring.h2.console.enabled=true` in your `application.properties`.
