@@ -36,7 +36,7 @@ mvn spring-boot:run -pl services/booking-service
 ### Frontend
 
 ```bash
-cd frontend && npm run dev
+cd frontend && npm install && npm run dev
 ```
 
 Then open http://localhost:5173 in your browser.

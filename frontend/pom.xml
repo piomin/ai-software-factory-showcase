@@ -30,17 +30,17 @@
                             <goal>install-node-and-npm</goal>
                         </goals>
                         <configuration>
-                            <nodeVersion>v20.11.1</nodeVersion>
-                            <npmVersion>10.2.4</npmVersion>
+                            <nodeVersion>v22.23.2</nodeVersion>
+                            <npmVersion>11.2.0</npmVersion>
                         </configuration>
                     </execution>
                     <execution>
-                        <id>npm install</id>
+                        <id>npm ci</id>
                         <goals>
                             <goal>npm</goal>
                         </goals>
                         <configuration>
-                            <arguments>install</arguments>
+                            <arguments>ci</arguments>
                         </configuration>
                     </execution>
                     <execution>
