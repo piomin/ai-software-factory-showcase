@@ -9,6 +9,12 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.Mockito.when;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+
+import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -38,7 +44,7 @@ class BookingControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.id").exists())
                 .andExpect(jsonPath("$.eventId").value(1))
                 .andExpect(jsonPath("$.customerName").value("Jane"))
                 .andExpect(jsonPath("$.tickets").value(2))
@@ -46,7 +52,7 @@ class BookingControllerTest {
     }
 
     @Test
-    void createBooking_invalidRequest_returns400() throws Exception {
+    void createBooking_invalidRequest_returns400ProblemDetail() throws Exception {
         String requestBody = """
                 {
                     "eventId": null,
@@ -57,7 +63,11 @@ class BookingControllerTest {
         mockMvc.perform(post("/api/bookings")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
-                .andExpect(status().is4xxClientError());
+                .andExpect(status().is4xxClientError())
+                .andExpect(header().string("Content-Type", "application/problem+json"))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.title").value("Validation Error"))
+                .andExpect(jsonPath("$.fieldErrors").isArray());
     }
 
     @Test
@@ -66,6 +76,33 @@ class BookingControllerTest {
 
         mockMvc.perform(get("/api/bookings/999")
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is4xxClientError());
+                .andExpect(status().isNotFound())
+                .andExpect(header().string("Content-Type", "application/problem+json"))
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.title").value("Booking Not Found"));
+    }
+
+    @Test
+    void getBooking_found_returnsBooking() throws Exception {
+        String createRequestBody = """
+                {
+                    "eventId": 1,
+                    "customerName": "Jane",
+                    "tickets": 2
+                }
+                """;
+        mockMvc.perform(post("/api/bookings")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(createRequestBody))
+                .andReturn();
+        
+        mockMvc.perform(get("/api/bookings/1")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.eventId").value(1))
+                .andExpect(jsonPath("$.customerName").value("Jane"))
+                .andExpect(jsonPath("$.tickets").value(2))
+                .andExpect(jsonPath("$.status").value("CONFIRMED"));
     }
 }

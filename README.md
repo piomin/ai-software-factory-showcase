@@ -19,6 +19,16 @@ mvn clean verify
 
 This builds both services and runs all tests, including the frontend build and tests.
 
+## CI
+
+This repository uses CircleCI for continuous integration. The build runs on every pull request and on `master` branch, compiling the whole repository and running all automated tests (backend and frontend).
+
+To run the same build locally:
+
+```bash
+mvn -B verify
+```
+
 ## Run
 
 ### Event Service
@@ -36,7 +46,7 @@ mvn spring-boot:run -pl services/booking-service
 ### Frontend
 
 ```bash
-cd frontend && npm run dev
+cd frontend && npm install && npm run dev
 ```
 
 Then open http://localhost:5173 in your browser.
