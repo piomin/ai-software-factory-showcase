@@ -3,17 +3,17 @@ version: 2.1
 executors:
   default:
     docker:
-      - image: cimg/openjdk:21.0
+      - image: maven:3.9.9-eclipse-temurin-25
 
 jobs:
   build-and-test:
     executor: default
     steps:
       - checkout
-      - restore_cache:
-          keys:
-            - v1-m2-{{ checksum "pom.xml" }}-{{ checksum "services/event-service/pom.xml" }}-{{ checksum "services/booking-service/pom.xml" }}-{{ checksum "frontend/pom.xml" }}
-            - v1-m2-
+       - restore_cache:
+           keys:
+             - v2-m2-{{ checksum "pom.xml" }}-{{ checksum "services/event-service/pom.xml" }}-{{ checksum "services/booking-service/pom.xml" }}-{{ checksum "frontend/pom.xml" }}
+             - v2-m2-
       - restore_cache:
           keys:
             - v1-node-{{ checksum "frontend/package-lock.json" }}
@@ -21,15 +21,15 @@ jobs:
       - run:
           name: Run Maven build and tests
           command: mvn -B -ntp verify
-      - save_cache:
-          paths:
-            - ~/.m2
-          key: v1-m2-{{ checksum "pom.xml" }}-{{ checksum "services/event-service/pom.xml" }}-{{ checksum "services/booking-service/pom.xml" }}-{{ checksum "frontend/pom.xml" }}
-      - save_cache:
-          paths:
-            - frontend/node
-            - frontend/node_modules
-          key: v1-node-{{ checksum "frontend/package-lock.json" }}
+       - save_cache:
+           paths:
+             - ~/.m2
+           key: v2-m2-{{ checksum "pom.xml" }}-{{ checksum "services/event-service/pom.xml" }}-{{ checksum "services/booking-service/pom.xml" }}-{{ checksum "frontend/pom.xml" }}
+       - save_cache:
+           paths:
+             - frontend/node
+             - frontend/node_modules
+           key: v2-node-{{ checksum "frontend/package-lock.json" }}
       - store_test_results:
           path: "**/target/surefire-reports"
       - store_artifacts:

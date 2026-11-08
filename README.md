@@ -23,6 +23,10 @@ This builds both services and runs all tests, including the frontend build and t
 
 This repository uses CircleCI for continuous integration. The build runs on every pull request and on `master` branch, compiling the whole repository and running all automated tests (backend and frontend).
 
+### JDK Version
+
+The project requires **JDK 25** for compilation. The CircleCI configuration uses `maven:3.9.9-eclipse-temurin-25` Docker image which includes JDK 25. The `maven-enforcer-plugin` is configured to verify that the JDK version matches `java.version` in `pom.xml`, preventing build failures due to version mismatches.
+
 To run the same build locally:
 
 ```bash
