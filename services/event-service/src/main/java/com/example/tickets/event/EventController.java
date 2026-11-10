@@ -23,6 +23,6 @@ class EventController {
     @GetMapping("/{id}")
     ResponseEntity<Event> getEvent(@PathVariable long id) {
         Event event = eventRepository.findById(id).orElse(null);
-        return event != null ? event : ProblemDetail.forStatus(404);
+        return event != null ? ResponseEntity.ok(event) : ResponseEntity.notFound().build();
     }
 }
