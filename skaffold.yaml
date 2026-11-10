@@ -1,0 +1,21 @@
+apiVersion: skaffold/v4beta11
+kind: Config
+metadata:
+  name: tickets-system
+build:
+  artifacts:
+    - id: event-service
+      context: .
+      docker:
+        dockerfile: services/event-service/Dockerfile
+    - id: booking-service
+      context: .
+      docker:
+        dockerfile: services/booking-service/Dockerfile
+    - id: frontend
+      context: frontend
+      docker:
+        dockerfile: Dockerfile
+deploy:
+  manifestDeps:
+    - k8s/manifests.yaml
