@@ -22,8 +22,7 @@ class EventController {
 
     @GetMapping("/{id}")
     ResponseEntity<Event> getEvent(@PathVariable long id) {
-        return eventRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElseThrow(() -> new EventNotFoundException(id));
+        Event event = eventRepository.findById(id).orElse(null);
+        return event != null ? event : ProblemDetail.forStatus(404);
     }
 }

@@ -26,7 +26,7 @@ class BookingController {
 
     @GetMapping("/{id}")
     Booking getBooking(@PathVariable long id) {
-        return bookingRepository.findById(id)
-                .orElseThrow(() -> new BookingNotFoundException(id));
+        Booking booking = bookingRepository.findById(id).orElse(null);
+        return booking != null ? booking : ProblemDetail.forStatus(HttpStatus.NOT_FOUND.value());
     }
 }
