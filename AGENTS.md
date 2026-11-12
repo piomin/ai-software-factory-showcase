@@ -12,6 +12,7 @@ Maven multi-module repo (aggregator `pom.xml` in the root):
 
 ```
 pom.xml                  parent / aggregator
+services/pom.xml         services aggregator (pom packaging)
 services/<name>-service/ Spring Boot microservice (one module per service)
 gateway/                 single entry point for the frontend (Spring Cloud Gateway / BFF)
 frontend/                Vue 3 + Vite app, built by frontend-maven-plugin

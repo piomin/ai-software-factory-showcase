@@ -10,8 +10,7 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>services/event-service</module>
-        <module>services/booking-service</module>
+        <module>services</module>
         <module>frontend</module>
     </modules>
 
