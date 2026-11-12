@@ -3,6 +3,7 @@ package com.example.tickets.booking;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ProblemDetail;
 
 import jakarta.validation.Valid;
 import org.springframework.web.server.ResponseStatusException;
@@ -26,11 +27,8 @@ class BookingController {
     }
 
     @GetMapping("/{id}")
-    Booking getBooking(@PathVariable long id) {
+    ResponseEntity<Booking> getBooking(@PathVariable long id) {
         Booking booking = bookingRepository.findById(id).orElse(null);
-        if (booking == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Booking not found");
-        }
-        return booking;
+        return booking != null ? ResponseEntity.ok(booking) : ResponseEntity.notFound().build();
     }
 }
