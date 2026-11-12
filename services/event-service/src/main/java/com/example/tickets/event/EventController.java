@@ -1,5 +1,6 @@
 package com.example.tickets.event;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,7 +23,8 @@ class EventController {
 
     @GetMapping("/{id}")
     ResponseEntity<Event> getEvent(@PathVariable long id) {
-        Event event = eventRepository.findById(id).orElse(null);
-        return event != null ? ResponseEntity.ok(event) : ResponseEntity.notFound().build();
+        return eventRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 }
