@@ -40,9 +40,5 @@ workflows:
     jobs:
       - build-and-test:
           filters:
-            branches:
-              only:
-                - master
-            pull_requests: true
             tags:
               ignore: /.*/

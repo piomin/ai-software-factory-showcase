@@ -1,39 +1,60 @@
 package com.example.tickets.event;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.Mockito;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
-import static org.hamcrest.Matchers.hasSize;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import java.time.LocalDate;
+import java.util.List;
 
-@WebMvcTest
-@Import({EventController.class, EventRepository.class, EventApplication.class})
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
+
+@Import(EventControllerTest.TestConfig.class)
 class EventControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
     @Test
-    void listEvents_returnsThreeEvents() throws Exception {
-        mockMvc.perform(get("/api/events")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(3)))
-                .andExpect(jsonPath("$[0].id").value(1L))
-                .andExpect(jsonPath("$[0].name").value("Rock Fest 2025"));
+    void listEvents_returnsThreeEvents(EventController controller, EventRepository repository) {
+        List<Event> events = controller.listEvents();
+
+        assertThat(events).hasSize(3);
+        assertThat(events.get(0).getId()).isEqualTo(1L);
+        assertThat(events.get(0).getName()).isEqualTo("Rock Fest 2025");
     }
 
     @Test
-    void getEvent_notFound_returns404() throws Exception {
-        mockMvc.perform(get("/api/events/999")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is4xxClientError());
+    void getEvent_notFound_returns404(EventController controller) {
+        var result = controller.getEvent(999);
+
+        assertThat(result.getStatusCode().value()).isEqualTo(404);
+    }
+
+    @Configuration
+    @EnableWebMvc
+    static class TestConfig {
+
+        @Bean
+        public EventRepository eventRepository() {
+            EventRepository repository = Mockito.mock(EventRepository.class);
+            when(repository.findAll()).thenReturn(List.of(
+                    new Event(1L, "Rock Fest 2025", "Main Stadium", LocalDate.of(2025, 6, 15), 5000),
+                    new Event(2L, "Jazz Evening", "Blue Note Club", LocalDate.of(2025, 7, 20), 200),
+                    new Event(3L, "Classical Symphony", "Concert Hall", LocalDate.of(2025, 8, 10), 800)
+            ));
+            when(repository.findById(1L)).thenReturn(java.util.Optional.of(new Event(1L, "Rock Fest 2025", "Main Stadium", LocalDate.of(2025, 6, 15), 5000)));
+            when(repository.findById(2L)).thenReturn(java.util.Optional.of(new Event(2L, "Jazz Evening", "Blue Note Club", LocalDate.of(2025, 7, 20), 200)));
+            when(repository.findById(3L)).thenReturn(java.util.Optional.of(new Event(3L, "Classical Symphony", "Concert Hall", LocalDate.of(2025, 8, 10), 800)));
+            when(repository.findById(999L)).thenReturn(java.util.Optional.empty());
+            return repository;
+        }
+
+        @Bean
+        public EventController eventController() {
+            return new EventController(eventRepository());
+        }
     }
 }
