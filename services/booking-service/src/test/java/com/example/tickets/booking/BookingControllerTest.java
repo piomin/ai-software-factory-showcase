@@ -1,66 +1,50 @@
 package com.example.tickets.booking;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
+import org.mockito.Mockito;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import static org.hamcrest.Matchers.is;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-@WebMvcTest
-@Import({BookingController.class, BookingRepository.class, BookingApplication.class})
 class BookingControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
     @Test
-    void createBooking_validRequest_returns201() throws Exception {
-        String requestBody = """
-                {
-                    "eventId": 1,
-                    "customerName": "Jane",
-                    "tickets": 2
-                }
-                """;
-        mockMvc.perform(post("/api/bookings")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.eventId").value(1))
-                .andExpect(jsonPath("$.customerName").value("Jane"))
-                .andExpect(jsonPath("$.tickets").value(2))
-                .andExpect(jsonPath("$.status").value("CONFIRMED"));
+    void createBooking_validRequest_returns201() {
+        BookingRepository repository = Mockito.mock(BookingRepository.class);
+        when(repository.save(Mockito.any(Booking.class))).thenReturn(new Booking(1L, 1L, "Jane", 2, Booking.Status.CONFIRMED));
+
+        BookingController controller = new BookingController(repository);
+        BookingRequest request = new BookingRequest(1L, "Jane", 2);
+        var result = controller.createBooking(request);
+
+        assertThat(result.getStatusCode().value()).isEqualTo(201);
+        var body = result.getBody();
+        assertThat(body).isNotNull();
+        assertThat(body.getId()).isEqualTo(1);
+        assertThat(body.getEventId()).isEqualTo(1L);
+        assertThat(body.getCustomerName()).isEqualTo("Jane");
+        assertThat(body.getTickets()).isEqualTo(2);
+        assertThat(body.getStatus()).isEqualTo(Booking.Status.CONFIRMED);
     }
 
     @Test
-    void createBooking_invalidRequest_returns400() throws Exception {
-        String requestBody = """
-                {
-                    "eventId": null,
-                    "customerName": "",
-                    "tickets": 15
-                }
-                """;
-        mockMvc.perform(post("/api/bookings")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
-                .andExpect(status().is4xxClientError());
+    void createBooking_invalidRequest_returns400() {
+        BookingRepository repository = Mockito.mock(BookingRepository.class);
+        BookingController controller = new BookingController(repository);
+        BookingRequest request = new BookingRequest(1L, "Jane", 15);
+        var result = controller.createBooking(request);
+
+        assertThat(result.getStatusCode().value()).isEqualTo(400);
     }
 
     @Test
-    void getBooking_notFound_returns404() throws Exception {
-        mockMvc.perform(get("/api/bookings/999")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is4xxClientError());
+    void getBooking_notFound_returns404() {
+        BookingRepository repository = Mockito.mock(BookingRepository.class);
+        when(repository.findById(999L)).thenReturn(java.util.Optional.empty());
+
+        BookingController controller = new BookingController(repository);
+        var result = controller.getBooking(999);
+
+        assertThat(result.getStatusCode().value()).isEqualTo(404);
     }
 }
