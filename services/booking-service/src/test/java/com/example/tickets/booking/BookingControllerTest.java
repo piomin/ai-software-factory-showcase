@@ -1,40 +1,66 @@
 package com.example.tickets.booking;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@SpringBootTest
 class BookingControllerTest {
 
+    @Autowired
+    private WebApplicationContext webApplicationContext;
+
+    private MockMvc mockMvc;
+
     @Test
-    void createBooking_validRequest_returns201() {
-        BookingRepository repository = Mockito.mock(BookingRepository.class);
-        when(repository.save(Mockito.any(Booking.class))).thenReturn(new Booking(1L, 1L, "Jane", 2, Booking.Status.CONFIRMED));
-
-        BookingController controller = new BookingController(repository);
-        BookingRequest request = new BookingRequest(1L, "Jane", 2);
-        var result = controller.createBooking(request);
-
-        assertThat(result.getStatusCode().value()).isEqualTo(201);
-        var body = result.getBody();
-        assertThat(body).isNotNull();
-        assertThat(body.getId()).isEqualTo(1);
-        assertThat(body.getEventId()).isEqualTo(1L);
-        assertThat(body.getCustomerName()).isEqualTo("Jane");
-        assertThat(body.getTickets()).isEqualTo(2);
-        assertThat(body.getStatus()).isEqualTo(Booking.Status.CONFIRMED);
+    void createBooking_validRequest_returns201() throws Exception {
+        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        String requestBody = """
+                {
+                    "eventId": 1,
+                    "customerName": "Jane",
+                    "tickets": 2
+                }
+                """;
+        mockMvc.perform(post("/api/bookings")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").isNotEmpty())
+                .andExpect(jsonPath("$.eventId").value(1))
+                .andExpect(jsonPath("$.customerName").value("Jane"))
+                .andExpect(jsonPath("$.tickets").value(2));
     }
 
     @Test
-    void getBooking_notFound_returns404() {
-        BookingRepository repository = Mockito.mock(BookingRepository.class);
-        when(repository.findById(999L)).thenReturn(java.util.Optional.empty());
+    void createBooking_invalidRequest_returns400() throws Exception {
+        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        String requestBody = """
+                {
+                    "eventId": null,
+                    "customerName": "",
+                    "tickets": 15
+                }
+                """;
+        mockMvc.perform(post("/api/bookings")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+                .andExpect(status().is4xxClientError());
+    }
 
-        BookingController controller = new BookingController(repository);
-        var result = controller.getBooking(999);
-
-        assertThat(result.getStatusCode().value()).isEqualTo(404);
+    @Test
+    void getBooking_notFound_returns404() throws Exception {
+        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        mockMvc.perform(get("/api/bookings/999")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is4xxClientError());
     }
 }

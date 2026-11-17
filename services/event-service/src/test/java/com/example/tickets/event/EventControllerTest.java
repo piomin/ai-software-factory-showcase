@@ -11,20 +11,16 @@ import static org.mockito.Mockito.when;
 
 class EventControllerTest {
 
+    private final EventRepository repository = Mockito.mock(EventRepository.class);
+    private final EventController controller = new EventController(repository);
+
     @Test
     void listEvents_returnsThreeEvents() {
-        EventRepository repository = Mockito.mock(EventRepository.class);
         when(repository.findAll()).thenReturn(List.of(
                 new Event(1L, "Rock Fest 2025", "Main Stadium", LocalDate.of(2025, 6, 15), 5000),
                 new Event(2L, "Jazz Evening", "Blue Note Club", LocalDate.of(2025, 7, 20), 200),
                 new Event(3L, "Classical Symphony", "Concert Hall", LocalDate.of(2025, 8, 10), 800)
         ));
-        when(repository.findById(1L)).thenReturn(java.util.Optional.of(new Event(1L, "Rock Fest 2025", "Main Stadium", LocalDate.of(2025, 6, 15), 5000)));
-        when(repository.findById(2L)).thenReturn(java.util.Optional.of(new Event(2L, "Jazz Evening", "Blue Note Club", LocalDate.of(2025, 7, 20), 200)));
-        when(repository.findById(3L)).thenReturn(java.util.Optional.of(new Event(3L, "Classical Symphony", "Concert Hall", LocalDate.of(2025, 8, 10), 800)));
-        when(repository.findById(999L)).thenReturn(java.util.Optional.empty());
-
-        EventController controller = new EventController(repository);
 
         List<Event> events = controller.listEvents();
 
@@ -35,10 +31,7 @@ class EventControllerTest {
 
     @Test
     void getEvent_notFound_returns404() {
-        EventRepository repository = Mockito.mock(EventRepository.class);
         when(repository.findById(999L)).thenReturn(java.util.Optional.empty());
-
-        EventController controller = new EventController(repository);
 
         var result = controller.getEvent(999);
 
