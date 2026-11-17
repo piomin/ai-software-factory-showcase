@@ -25,7 +25,7 @@ public class Booking {
         this.eventId = eventId;
         this.customerName = customerName;
         this.tickets = tickets;
-        this.status = status;
+        this.status = status != null ? status : Status.CONFIRMED;
     }
 
     public Long getId() {
