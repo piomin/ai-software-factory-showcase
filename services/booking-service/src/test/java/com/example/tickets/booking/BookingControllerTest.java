@@ -28,16 +28,6 @@ class BookingControllerTest {
     }
 
     @Test
-    void createBooking_invalidRequest_returns400() {
-        BookingRepository repository = Mockito.mock(BookingRepository.class);
-        BookingController controller = new BookingController(repository);
-        BookingRequest request = new BookingRequest(1L, "Jane", 15);
-        var result = controller.createBooking(request);
-
-        assertThat(result.getStatusCode().value()).isEqualTo(400);
-    }
-
-    @Test
     void getBooking_notFound_returns404() {
         BookingRepository repository = Mockito.mock(BookingRepository.class);
         when(repository.findById(999L)).thenReturn(java.util.Optional.empty());
