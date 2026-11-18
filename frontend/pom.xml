@@ -16,6 +16,8 @@
 
     <properties>
         <frontend.build.dir>dist</frontend.build.dir>
+        <frontend.node.version>v22.23.2</frontend.node.version>
+        <frontend.npm.version>11.2.0</frontend.npm.version>
     </properties>
 
     <build>
@@ -30,8 +32,8 @@
                             <goal>install-node-and-npm</goal>
                         </goals>
                         <configuration>
-                            <nodeVersion>v22.23.2</nodeVersion>
-                            <npmVersion>11.2.0</npmVersion>
+                            <nodeVersion>${frontend.node.version}</nodeVersion>
+                            <npmVersion>${frontend.npm.version}</npmVersion>
                         </configuration>
                     </execution>
                     <execution>
