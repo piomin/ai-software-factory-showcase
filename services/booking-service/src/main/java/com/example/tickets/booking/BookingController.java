@@ -20,7 +20,7 @@ class BookingController {
 
     @PostMapping
     ResponseEntity<Booking> createBooking(@Valid @RequestBody BookingRequest request) {
-        Booking booking = bookingRepository.save(new Booking(null, request.eventId(), request.customerName(), request.tickets(), null));
+        Booking booking = bookingRepository.save(new Booking(null, request.eventId(), request.customerName(), request.tickets(), Booking.Status.CONFIRMED));
         return ResponseEntity.status(HttpStatus.CREATED)
                 .header("Location", "/api/bookings/" + booking.getId())
                 .body(booking);
