@@ -5,9 +5,10 @@ import org.mockito.Mockito;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class EventControllerTest {
 
@@ -31,10 +32,51 @@ class EventControllerTest {
 
     @Test
     void getEvent_notFound_returns404() {
-        when(repository.findById(999L)).thenReturn(java.util.Optional.empty());
+        when(repository.findById(999L)).thenReturn(Optional.empty());
 
         var result = controller.getEvent(999);
 
         assertThat(result.getStatusCode().value()).isEqualTo(404);
+    }
+
+    @Test
+    void reserveTickets_success_returns201() {
+        Event eventBefore = new Event(1L, "Rock Fest 2025", "Main Stadium", LocalDate.of(2025, 6, 15), 5000);
+        Event eventAfter = new Event(1L, "Rock Fest 2025", "Main Stadium", LocalDate.of(2025, 6, 15), 4998);
+        
+        when(repository.findById(1L)).thenReturn(Optional.of(eventBefore));
+        when(repository.decreaseAvailableTickets(1L, 2)).thenReturn(1);
+        when(repository.findById(1L)).thenReturn(Optional.of(eventAfter));
+
+        var result = controller.reserveTickets(1L, new EventReservationRequest(2));
+
+        assertThat(result.getStatusCode().value()).isEqualTo(201);
+        assertThat(result.getBody().ticketsReserved()).isEqualTo(2);
+        assertThat(result.getBody().availableTickets()).isEqualTo(4998);
+    }
+
+    @Test
+    void reserveTickets_eventNotFound_throws404() {
+        when(repository.findById(999L)).thenReturn(Optional.empty());
+
+        try {
+            controller.reserveTickets(999L, new EventReservationRequest(2));
+        } catch (EventNotFoundException ex) {
+            assertThat(ex.getStatusCode().value()).isEqualTo(404);
+        }
+    }
+
+    @Test
+    void reserveTickets_notEnoughTickets_throws409() {
+        Event event = new Event(1L, "Rock Fest 2025", "Main Stadium", LocalDate.of(2025, 6, 15), 5);
+        
+        when(repository.findById(1L)).thenReturn(Optional.of(event));
+        when(repository.decreaseAvailableTickets(1L, 10)).thenReturn(0);
+
+        try {
+            controller.reserveTickets(1L, new EventReservationRequest(10));
+        } catch (NotEnoughTicketsException ex) {
+            assertThat(ex.getStatusCode().value()).isEqualTo(409);
+        }
     }
 }

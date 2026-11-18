@@ -14,4 +14,12 @@ class EventExceptionHandler {
         problemDetail.setDetail(ex.getReason());
         return problemDetail;
     }
+
+    @ExceptionHandler(NotEnoughTicketsException.class)
+    ProblemDetail handleNotEnoughTicketsException(NotEnoughTicketsException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(ex.getStatusCode().value());
+        problemDetail.setTitle("Not Enough Tickets");
+        problemDetail.setDetail(ex.getReason());
+        return problemDetail;
+    }
 }

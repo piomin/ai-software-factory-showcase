@@ -14,6 +14,10 @@ public class Event {
     private String name;
     private String venue;
     private LocalDate date;
+
+    @Version
+    private int version;
+
     private int availableTickets;
 
     public Event() {
@@ -59,6 +63,14 @@ public class Event {
         this.date = date;
     }
 
+    public int getVersion() {
+        return version;
+    }
+
+    public void setVersion(int version) {
+        this.version = version;
+    }
+
     public int getAvailableTickets() {
         return availableTickets;
     }
@@ -74,6 +86,7 @@ public class Event {
                 ", name='" + name + '\'' +
                 ", venue='" + venue + '\'' +
                 ", date=" + date +
+                ", version=" + version +
                 ", availableTickets=" + availableTickets +
                 '}';
     }
