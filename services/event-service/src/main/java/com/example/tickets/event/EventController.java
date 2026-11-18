@@ -25,7 +25,7 @@ class EventController {
     ResponseEntity<Event> getEvent(@PathVariable long id) {
         return eventRepository.findById(id)
                 .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+                .orElseThrow(() -> new EventNotFoundException(id));
     }
 
     @PostMapping("/{id}/reservations")

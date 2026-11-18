@@ -1,5 +1,6 @@
 package com.example.tickets.event;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -9,9 +10,9 @@ class EventExceptionHandler {
 
     @ExceptionHandler(EventNotFoundException.class)
     ProblemDetail handleEventNotFoundException(EventNotFoundException ex) {
-        ProblemDetail problemDetail = ProblemDetail.forStatus(ex.getStatusCode().value());
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.NOT_FOUND.value());
         problemDetail.setTitle("Event Not Found");
-        problemDetail.setDetail(ex.getReason());
+        problemDetail.setDetail(ex.getMessage());
         return problemDetail;
     }
 

@@ -8,7 +8,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.when;
 
 class EventControllerTest {
 
@@ -34,9 +35,21 @@ class EventControllerTest {
     void getEvent_notFound_returns404() {
         when(repository.findById(999L)).thenReturn(Optional.empty());
 
-        var result = controller.getEvent(999);
+        assertThatThrownBy(() -> controller.getEvent(999))
+                .isInstanceOf(EventNotFoundException.class)
+                .hasMessage("Event not found for id: 999");
+    }
 
-        assertThat(result.getStatusCode().value()).isEqualTo(404);
+    @Test
+    void getEvent_found_returns200() {
+        when(repository.findById(1L)).thenReturn(java.util.Optional.of(
+                new Event(1L, "Rock Fest 2025", "Main Stadium", LocalDate.of(2025, 6, 15), 5000)
+        ));
+
+        var result = controller.getEvent(1);
+
+        assertThat(result.getStatusCode().value()).isEqualTo(200);
+        assertThat(result.getBody()).isNotNull();
     }
 
     @Test
@@ -59,11 +72,9 @@ class EventControllerTest {
     void reserveTickets_eventNotFound_throws404() {
         when(repository.findById(999L)).thenReturn(Optional.empty());
 
-        try {
-            controller.reserveTickets(999L, new EventReservationRequest(2));
-        } catch (EventNotFoundException ex) {
-            assertThat(ex.getStatusCode().value()).isEqualTo(404);
-        }
+        assertThatThrownBy(() -> controller.reserveTickets(999L, new EventReservationRequest(2)))
+                .isInstanceOf(EventNotFoundException.class)
+                .hasMessage("Event not found for id: 999");
     }
 
     @Test

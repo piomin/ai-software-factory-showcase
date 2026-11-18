@@ -1,5 +1,5 @@
-import { ref, computed, onMounted } from 'vue'
-import { fetchEvents } from '../api/events'
+import { ref, onMounted } from 'vue'
+import { fetchEvents, type Event } from '../api/events'
 
 export function useEventList() {
   const events = ref<Event[]>([])
@@ -26,12 +26,4 @@ export function useEventList() {
     error,
     loadEvents,
   }
-}
-
-interface Event {
-  id: number
-  name: string
-  venue: string
-  date: string
-  availableTickets: number
 }
