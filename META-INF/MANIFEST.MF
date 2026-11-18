@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Implementation-Title: spring-test
+Implementation-Version: 7.0.10
+Automatic-Module-Name: spring.test
+Build-Jdk-Spec: 25
+
