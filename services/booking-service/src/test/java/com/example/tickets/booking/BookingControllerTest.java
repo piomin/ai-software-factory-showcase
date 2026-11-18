@@ -84,7 +84,11 @@ class BookingControllerTest {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
         mockMvc.perform(get("/api/bookings/999")
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType("application/problem+json"))
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.title").value("Booking Not Found"))
+                .andExpect(jsonPath("$.detail").value("Booking not found for id: 999"));
     }
 
     @Test

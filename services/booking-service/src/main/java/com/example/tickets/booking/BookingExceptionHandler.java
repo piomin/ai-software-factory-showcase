@@ -1,5 +1,6 @@
 package com.example.tickets.booking;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -13,26 +14,18 @@ class BookingExceptionHandler {
 
     @ExceptionHandler(BookingNotFoundException.class)
     ProblemDetail handleBookingNotFoundException(BookingNotFoundException ex) {
-        ProblemDetail problemDetail = ProblemDetail.forStatus(ex.getStatusCode().value());
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.NOT_FOUND.value());
         problemDetail.setTitle("Booking Not Found");
-        problemDetail.setDetail(ex.getReason());
-        return problemDetail;
-    }
-
-    @ExceptionHandler(InvalidBookingRequestException.class)
-    ProblemDetail handleInvalidBookingRequestException(InvalidBookingRequestException ex) {
-        ProblemDetail problemDetail = ProblemDetail.forStatus(ex.getStatusCode().value());
-        problemDetail.setTitle("Invalid Booking Request");
-        problemDetail.setDetail(ex.getReason());
+        problemDetail.setDetail(ex.getMessage());
         return problemDetail;
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
     ProblemDetail handleConstraintViolation(ConstraintViolationException ex) {
-        ProblemDetail problemDetail = ProblemDetail.forStatus(400);
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST.value());
         problemDetail.setTitle("Validation Error");
         problemDetail.setDetail("Invalid booking request");
-        
+
         List<FieldError> fieldErrors = new ArrayList<>();
         ex.getConstraintViolations().forEach(violation -> {
             fieldErrors.add(new FieldError(
@@ -41,17 +34,17 @@ class BookingExceptionHandler {
                     violation.getMessage()
             ));
         });
-        
+
         problemDetail.setProperty("fieldErrors", fieldErrors);
         return problemDetail;
     }
 
     @ExceptionHandler(org.springframework.web.bind.MethodArgumentNotValidException.class)
     ProblemDetail handleMethodArgumentNotValid(org.springframework.web.bind.MethodArgumentNotValidException ex) {
-        ProblemDetail problemDetail = ProblemDetail.forStatus(400);
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST.value());
         problemDetail.setTitle("Validation Error");
         problemDetail.setDetail("Invalid booking request");
-        
+
         List<FieldError> fieldErrors = new ArrayList<>();
         ex.getBindingResult().getFieldErrors().forEach(error -> {
             fieldErrors.add(new FieldError(
@@ -60,7 +53,7 @@ class BookingExceptionHandler {
                     error.getDefaultMessage()
             ));
         });
-        
+
         problemDetail.setProperty("fieldErrors", fieldErrors);
         return problemDetail;
     }

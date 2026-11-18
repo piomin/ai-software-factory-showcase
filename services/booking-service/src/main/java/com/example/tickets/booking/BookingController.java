@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ProblemDetail;
 
 import jakarta.validation.Valid;
-import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/bookings")
@@ -28,7 +27,8 @@ class BookingController {
 
     @GetMapping("/{id}")
     ResponseEntity<Booking> getBooking(@PathVariable long id) {
-        Booking booking = bookingRepository.findById(id).orElse(null);
-        return booking != null ? ResponseEntity.ok(booking) : ResponseEntity.notFound().build();
+        return bookingRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElseThrow(() -> new BookingNotFoundException(id));
     }
 }
