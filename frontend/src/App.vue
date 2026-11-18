@@ -1,11 +1,19 @@
 <script setup lang="ts">
+import { onMounted, ref } from 'vue'
 import EventList from './components/EventList.vue'
+import { useEventList } from './composables/useEventList'
+
+const { events, loading, error, loadEvents } = useEventList()
+
+onMounted(() => {
+  loadEvents()
+})
 </script>
 
 <template>
   <div id="app">
     <h1>Ticket Booking</h1>
-    <EventList />
+    <EventList :events="events" :loading="loading" :error="error" @retry="loadEvents" />
   </div>
 </template>
 
