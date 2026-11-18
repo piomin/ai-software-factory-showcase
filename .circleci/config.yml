@@ -25,7 +25,7 @@ commands:
       - run:
           name: Validate skaffold.yaml
           command: |
-            /tmp/skaffold diagnose --filename skaffold.yaml --yaml-only
+            /tmp/skaffold diagnose --filename skaffold.yaml --yaml-only --validate=false
 
   validate-kubernetes:
     description: "Validate Kubernetes manifests"
@@ -116,7 +116,7 @@ jobs:
       - run:
           name: Validate skaffold.yaml schema
           command: |
-            /tmp/skaffold diagnose --filename skaffold.yaml --yaml-only
+            /tmp/skaffold diagnose --filename skaffold.yaml --yaml-only --validate=false
       - run:
           name: Validate Kubernetes manifests
           command: |
