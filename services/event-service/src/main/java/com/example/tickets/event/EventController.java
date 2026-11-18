@@ -27,4 +27,23 @@ class EventController {
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new EventNotFoundException(id));
     }
+
+    @PostMapping("/{id}/reservations")
+    ResponseEntity<EventReservationResponse> reserveTickets(@PathVariable long id, @RequestBody EventReservationRequest request) {
+        Event event = eventRepository.findById(id)
+                .orElseThrow(() -> new EventNotFoundException(id));
+        int updated = eventRepository.decreaseAvailableTickets(id, request.tickets());
+        if (updated == 0) {
+            throw new NotEnoughTicketsException(request.tickets(), event.getAvailableTickets());
+        }
+        event = eventRepository.findById(id).orElseThrow(() -> new EventNotFoundException(id));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new EventReservationResponse(request.tickets(), event.getAvailableTickets()));
+    }
+
+    private int getAvailableTickets(long id) {
+        return eventRepository.findById(id)
+                .map(Event::getAvailableTickets)
+                .orElse(0);
+    }
 }

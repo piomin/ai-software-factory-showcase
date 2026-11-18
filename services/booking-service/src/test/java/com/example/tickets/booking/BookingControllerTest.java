@@ -4,10 +4,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -17,6 +19,9 @@ class BookingControllerTest {
 
     @Autowired
     private WebApplicationContext webApplicationContext;
+
+    @MockitoBean
+    private EventServiceClient eventServiceClient;
 
     private MockMvc mockMvc;
 
@@ -40,6 +45,23 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$.customerName").value("Jane"))
                 .andExpect(jsonPath("$.tickets").value(2))
                 .andExpect(jsonPath("$.status").value("CONFIRMED"));
+    }
+
+    @Test
+    void createBooking_reservesTicketsOnEventService() throws Exception {
+        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        String requestBody = """
+                {
+                    "eventId": 7,
+                    "customerName": "John",
+                    "tickets": 3
+                }
+                """;
+        mockMvc.perform(post("/api/bookings")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+                .andExpect(status().isCreated());
+        verify(eventServiceClient).reserveTickets(7L, 3);
     }
 
     @Test

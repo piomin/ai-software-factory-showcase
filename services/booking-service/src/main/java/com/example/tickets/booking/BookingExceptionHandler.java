@@ -20,6 +20,30 @@ class BookingExceptionHandler {
         return problemDetail;
     }
 
+    @ExceptionHandler(EventNotFoundException.class)
+    ProblemDetail handleEventNotFoundException(EventNotFoundException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(ex.getStatusCode().value());
+        problemDetail.setTitle("Event Not Found");
+        problemDetail.setDetail(ex.getReason());
+        return problemDetail;
+    }
+
+    @ExceptionHandler(NotEnoughTicketsException.class)
+    ProblemDetail handleNotEnoughTicketsException(NotEnoughTicketsException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(ex.getStatusCode().value());
+        problemDetail.setTitle("Not Enough Tickets");
+        problemDetail.setDetail(ex.getReason());
+        return problemDetail;
+    }
+
+    @ExceptionHandler(ServiceUnavailableException.class)
+    ProblemDetail handleServiceUnavailableException(ServiceUnavailableException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(ex.getStatusCode().value());
+        problemDetail.setTitle("Service Unavailable");
+        problemDetail.setDetail(ex.getReason());
+        return problemDetail;
+    }
+
     @ExceptionHandler(ConstraintViolationException.class)
     ProblemDetail handleConstraintViolation(ConstraintViolationException ex) {
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST.value());

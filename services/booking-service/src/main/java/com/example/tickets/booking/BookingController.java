@@ -12,13 +12,16 @@ import jakarta.validation.Valid;
 class BookingController {
 
     private final BookingRepository bookingRepository;
+    private final EventServiceClient eventServiceClient;
 
-    BookingController(BookingRepository bookingRepository) {
+    BookingController(BookingRepository bookingRepository, EventServiceClient eventServiceClient) {
         this.bookingRepository = bookingRepository;
+        this.eventServiceClient = eventServiceClient;
     }
 
     @PostMapping
     ResponseEntity<Booking> createBooking(@Valid @RequestBody BookingRequest request) {
+        eventServiceClient.reserveTickets(request.eventId(), request.tickets());
         Booking booking = bookingRepository.save(new Booking(null, request.eventId(), request.customerName(), request.tickets(), Booking.Status.CONFIRMED));
         return ResponseEntity.status(HttpStatus.CREATED)
                 .header("Location", "/api/bookings/" + booking.getId())
