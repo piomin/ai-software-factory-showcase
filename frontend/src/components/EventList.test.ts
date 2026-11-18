@@ -20,6 +20,14 @@ describe('EventList', () => {
     expect(wrapper.text()).toContain('Blue Note Club')
   })
 
+  it('renders empty state when no events', async () => {
+    const wrapper = mount(EventList, {
+      props: { events: [] },
+    })
+
+    expect(wrapper.text()).toContain('No events available')
+  })
+
   it('renders error state when fetch fails', async () => {
     const wrapper = mount(EventList, {
       props: { error: 'Network error' },
@@ -27,5 +35,25 @@ describe('EventList', () => {
 
     expect(wrapper.text()).toContain('Error')
     expect(wrapper.text()).toContain('Network error')
+  })
+
+  it('shows retry button on error', async () => {
+    const wrapper = mount(EventList, {
+      props: { error: 'Network error' },
+    })
+
+    const retryButton = wrapper.find('button')
+    expect(retryButton.exists()).toBe(true)
+    expect(retryButton.text()).toBe('Retry')
+  })
+
+  it('emits retry event when retry button is clicked', async () => {
+    const wrapper = mount(EventList, {
+      props: { error: 'Network error' },
+    })
+
+    await wrapper.find('button').trigger('click')
+
+    expect(wrapper.emitted('retry')).toBeTruthy()
   })
 })
