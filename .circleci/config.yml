@@ -4,6 +4,73 @@ executors:
   default:
     docker:
       - image: cimg/openjdk:25.0
+  validation:
+    docker:
+      - image: cimg/base:2025.01
+
+commands:
+  install-skaffold:
+    description: "Download and install skaffold"
+    steps:
+      - run:
+          name: Download skaffold
+          command: |
+            curl -sL https://github.com/GoogleContainerTools/skaffold/releases/download/v2.25.0/skaffold-linux-amd64 -o /tmp/skaffold
+            chmod +x /tmp/skaffold
+            /tmp/skaffold version -o '{{.Version}}'
+
+  validate-skaffold:
+    description: "Validate skaffold.yaml configuration"
+    steps:
+      - run:
+          name: Validate skaffold.yaml
+          command: |
+            /tmp/skaffold diagnose --filename skaffold.yaml --yaml-only --validate=false
+
+  validate-kubernetes:
+    description: "Validate Kubernetes manifests"
+    steps:
+      - run:
+          name: Validate Kubernetes manifests
+          command: |
+            /tmp/kubectl apply --dry-run=client -f k8s/manifests.yaml
+
+  validate-image-consistency:
+    description: "Validate image names consistency between skaffold.yaml and k8s manifests"
+    steps:
+      - run:
+          name: Validate image consistency
+          command: |
+            # Extract image names from skaffold.yaml artifacts section
+            SKAFFOLD_IMAGES=$(grep -A20 'artifacts:' skaffold.yaml | grep '^\s*- image:' | sed 's/.*image:\s*//' | sed 's/\s*$//' | sort -u)
+            
+            # Extract image names from k8s manifests (base name without tag)
+            MANIFEST_IMAGES=$(grep 'image:' k8s/manifests.yaml | sed 's/.*image:\s*//' | sed 's/\s*$//' | sed 's/:[^:]*$//' | sort -u)
+            
+            echo "Images defined in skaffold.yaml artifacts:"
+            echo "$SKAFFOLD_IMAGES"
+            echo ""
+            echo "Images referenced in k8s/manifests.yaml:"
+            echo "$MANIFEST_IMAGES"
+            echo ""
+            
+            # Check each skaffold image is in manifests
+            for img in $SKAFFOLD_IMAGES; do
+              if ! echo "$MANIFEST_IMAGES" | grep -qx "$img"; then
+                echo "ERROR: Image '$img' from skaffold.yaml artifacts not found in k8s/manifests.yaml"
+                exit 1
+              fi
+            done
+            
+            # Check each manifest image is in skaffold
+            for img in $MANIFEST_IMAGES; do
+              if ! echo "$SKAFFOLD_IMAGES" | grep -qx "$img"; then
+                echo "ERROR: Image '$img' from k8s/manifests.yaml not found in skaffold.yaml artifacts"
+                exit 1
+              fi
+            done
+            
+            echo "✓ Image consistency check passed"
 
 jobs:
   build-and-test:
@@ -35,10 +102,67 @@ jobs:
       - store_artifacts:
          path: "**/target/surefire-reports"
 
+  validate-deployment:
+    executor: validation
+    steps:
+      - checkout
+      - install-skaffold
+      - run:
+          name: Download kubectl
+          command: |
+            curl -sL https://dl.k8s.io/release/v1.30.0/bin/linux/amd64/kubectl -o /tmp/kubectl
+            chmod +x /tmp/kubectl
+            /tmp/kubectl version --client
+      - run:
+          name: Validate skaffold.yaml schema
+          command: |
+            /tmp/skaffold diagnose --filename skaffold.yaml --yaml-only --validate=false
+      - run:
+          name: Validate Kubernetes manifests
+          command: |
+            /tmp/kubectl apply --dry-run=client -f k8s/manifests.yaml
+      - run:
+          name: Validate image consistency
+          command: |
+            # Extract image names from skaffold.yaml artifacts section
+            SKAFFOLD_IMAGES=$(grep -A20 'artifacts:' skaffold.yaml | grep '^\s*- image:' | sed 's/.*image:\s*//' | sed 's/\s*$//' | sort -u)
+            
+            # Extract image names from k8s manifests (base name without tag)
+            MANIFEST_IMAGES=$(grep 'image:' k8s/manifests.yaml | sed 's/.*image:\s*//' | sed 's/\s*$//' | sed 's/:[^:]*$//' | sort -u)
+            
+            echo "Images defined in skaffold.yaml artifacts:"
+            echo "$SKAFFOLD_IMAGES"
+            echo ""
+            echo "Images referenced in k8s/manifests.yaml:"
+            echo "$MANIFEST_IMAGES"
+            echo ""
+            
+            # Check each skaffold image is in manifests
+            for img in $SKAFFOLD_IMAGES; do
+              if ! echo "$MANIFEST_IMAGES" | grep -qx "$img"; then
+                echo "ERROR: Image '$img' from skaffold.yaml artifacts not found in k8s/manifests.yaml"
+                exit 1
+              fi
+            done
+            
+            # Check each manifest image is in skaffold
+            for img in $MANIFEST_IMAGES; do
+              if ! echo "$SKAFFOLD_IMAGES" | grep -qx "$img"; then
+                echo "ERROR: Image '$img' from k8s/manifests.yaml not found in skaffold.yaml artifacts"
+                exit 1
+              fi
+            done
+            
+            echo "✓ Image consistency check passed"
+
 workflows:
   build:
     jobs:
       - build-and-test:
+          filters:
+            tags:
+              ignore: /.*/
+      - validate-deployment:
           filters:
             tags:
               ignore: /.*/
