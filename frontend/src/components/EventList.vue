@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { Event } from '../api/events'
+import { formatPln } from '../utils/formatPrice'
 
 interface Props {
   events?: Event[]
@@ -28,6 +29,7 @@ const hasEvents = computed(() => props.events !== undefined && props.events.leng
         <strong>{{ event.name }}</strong><br />
         {{ event.venue }}<br />
         {{ event.date }}<br />
+        {{ formatPln(event.price) }}<br />
         {{ event.availableTickets }} tickets available
       </li>
     </ul>
