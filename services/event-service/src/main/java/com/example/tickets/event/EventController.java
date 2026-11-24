@@ -1,5 +1,6 @@
 package com.example.tickets.event;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,6 +40,14 @@ class EventController {
         event = eventRepository.findById(id).orElseThrow(() -> new EventNotFoundException(id));
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new EventReservationResponse(request.tickets(), event.getAvailableTickets()));
+    }
+
+    @PostMapping("/{id}/ticket-release")
+    ResponseEntity<Void> releaseTickets(@PathVariable long id, @Valid @RequestBody TicketReleaseRequest request) {
+        eventRepository.findById(id)
+                .orElseThrow(() -> new EventNotFoundException(id));
+        eventRepository.increaseAvailableTickets(id, request.tickets());
+        return ResponseEntity.noContent().build();
     }
 
     private int getAvailableTickets(long id) {

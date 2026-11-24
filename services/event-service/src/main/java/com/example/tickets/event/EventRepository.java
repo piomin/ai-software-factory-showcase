@@ -14,4 +14,9 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     @Transactional
     @Query("UPDATE Event e SET e.availableTickets = e.availableTickets - :tickets WHERE e.id = :id AND e.availableTickets >= :tickets")
     int decreaseAvailableTickets(long id, int tickets);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE Event e SET e.availableTickets = e.availableTickets + :tickets WHERE e.id = :id")
+    int increaseAvailableTickets(long id, int tickets);
 }

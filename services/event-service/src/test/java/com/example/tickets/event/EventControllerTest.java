@@ -10,6 +10,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class EventControllerTest {
@@ -95,5 +96,29 @@ class EventControllerTest {
         } catch (NotEnoughTicketsException ex) {
             assertThat(ex.getStatusCode().value()).isEqualTo(409);
         }
+    }
+
+    @Test
+    void releaseTickets_success_returns204AndIncreasesAvailability() {
+        Event event = new Event(1L, "Rock Fest 2025", "Main Stadium", LocalDate.of(2025, 6, 15), 4998);
+
+        when(repository.findById(1L)).thenReturn(Optional.of(event));
+        when(repository.increaseAvailableTickets(1L, 2)).thenReturn(1);
+
+        var result = controller.releaseTickets(1L, new TicketReleaseRequest(2));
+
+        assertThat(result.getStatusCode().value()).isEqualTo(204);
+        verify(repository).increaseAvailableTickets(1L, 2);
+    }
+
+    @Test
+    void releaseTickets_eventNotFound_throws404() {
+        when(repository.findById(999L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> controller.releaseTickets(999L, new TicketReleaseRequest(2)))
+                .isInstanceOf(EventNotFoundException.class)
+                .hasMessage("Event not found for id: 999");
+
+        verify(repository, Mockito.never()).increaseAvailableTickets(Mockito.anyLong(), Mockito.anyInt());
     }
 }
