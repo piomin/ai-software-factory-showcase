@@ -16,6 +16,27 @@ class EventServiceClient {
         this.restClient = RestClient.create(baseUrl);
     }
 
+    EventDetails getEvent(long eventId) {
+        try {
+            URI uri = URI.create("/api/events/" + eventId);
+            return restClient.get()
+                    .uri(uri)
+                    .retrieve()
+                    .onStatus(status -> status.value() == 404, (req, res) -> {
+                        throw new EventNotFoundException(eventId);
+                    })
+                    .onStatus(status -> status.value() == 503, (req, res) -> {
+                        throw new ServiceUnavailableException("Event service is unavailable");
+                    })
+                    .body(EventDetails.class);
+        } catch (RestClientResponseException e) {
+            if (e.getStatusCode().value() == 503) {
+                throw new ServiceUnavailableException("Event service is unavailable");
+            }
+            throw e;
+        }
+    }
+
     EventReservationResponse reserveTickets(long eventId, int tickets) {
         try {
             URI uri = URI.create("/api/events/" + eventId + "/reservations");

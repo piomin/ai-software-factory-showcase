@@ -3,35 +3,52 @@ package com.example.tickets.booking;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.http.ProblemDetail;
 
 import jakarta.validation.Valid;
+import java.math.BigDecimal;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api/bookings")
 class BookingController {
 
+    private static final Duration PAYMENT_WINDOW = Duration.ofMinutes(15);
+
     private final BookingRepository bookingRepository;
     private final EventServiceClient eventServiceClient;
+    private final Clock clock;
 
-    BookingController(BookingRepository bookingRepository, EventServiceClient eventServiceClient) {
+    BookingController(BookingRepository bookingRepository, EventServiceClient eventServiceClient, Clock clock) {
         this.bookingRepository = bookingRepository;
         this.eventServiceClient = eventServiceClient;
+        this.clock = clock;
     }
 
     @PostMapping
-    ResponseEntity<Booking> createBooking(@Valid @RequestBody BookingRequest request) {
+    ResponseEntity<BookingResponse> createBooking(@Valid @RequestBody BookingRequest request) {
         eventServiceClient.reserveTickets(request.eventId(), request.tickets());
-        Booking booking = bookingRepository.save(new Booking(null, request.eventId(), request.customerName(), request.tickets(), Booking.Status.CONFIRMED));
+        EventDetails event = eventServiceClient.getEvent(request.eventId());
+        LocalDateTime createdAt = LocalDateTime.now(clock);
+        Booking booking = bookingRepository.save(new Booking(
+                null,
+                request.eventId(),
+                request.customerName(),
+                request.tickets(),
+                Booking.Status.PENDING_PAYMENT,
+                event.price().multiply(BigDecimal.valueOf(request.tickets())),
+                createdAt,
+                createdAt.plus(PAYMENT_WINDOW)));
         return ResponseEntity.status(HttpStatus.CREATED)
                 .header("Location", "/api/bookings/" + booking.getId())
-                .body(booking);
+                .body(BookingResponse.from(booking));
     }
 
     @GetMapping("/{id}")
-    ResponseEntity<Booking> getBooking(@PathVariable long id) {
+    ResponseEntity<BookingResponse> getBooking(@PathVariable long id) {
         return bookingRepository.findById(id)
-                .map(ResponseEntity::ok)
+                .map(booking -> ResponseEntity.ok(BookingResponse.from(booking)))
                 .orElseThrow(() -> new BookingNotFoundException(id));
     }
 }
