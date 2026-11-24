@@ -1,6 +1,7 @@
 package com.example.tickets.booking;
 
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -17,15 +18,32 @@ public class Booking {
     @Enumerated(EnumType.STRING)
     private Status status;
 
+    @Column(name = "amount", precision = 10, scale = 2)
+    private BigDecimal amount;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @Column(name = "expires_at")
+    private LocalDateTime expiresAt;
+
     public Booking() {
     }
 
     public Booking(Long id, Long eventId, String customerName, Integer tickets, Status status) {
+        this(id, eventId, customerName, tickets, status, null, null, null);
+    }
+
+    public Booking(Long id, Long eventId, String customerName, Integer tickets, Status status,
+                   BigDecimal amount, LocalDateTime createdAt, LocalDateTime expiresAt) {
         this.id = id;
         this.eventId = eventId;
         this.customerName = customerName;
         this.tickets = tickets;
         this.status = status != null ? status : Status.CONFIRMED;
+        this.amount = amount;
+        this.createdAt = createdAt;
+        this.expiresAt = expiresAt;
     }
 
     public Long getId() {
@@ -68,6 +86,30 @@ public class Booking {
         this.status = status;
     }
 
+    public BigDecimal getAmount() {
+        return amount;
+    }
+
+    public void setAmount(BigDecimal amount) {
+        this.amount = amount;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getExpiresAt() {
+        return expiresAt;
+    }
+
+    public void setExpiresAt(LocalDateTime expiresAt) {
+        this.expiresAt = expiresAt;
+    }
+
     @Override
     public String toString() {
         return "Booking{" +
@@ -76,10 +118,16 @@ public class Booking {
                 ", customerName='" + customerName + '\'' +
                 ", tickets=" + tickets +
                 ", status=" + status +
+                ", amount=" + amount +
+                ", createdAt=" + createdAt +
+                ", expiresAt=" + expiresAt +
                 '}';
     }
 
     public enum Status {
-        CONFIRMED
+        PENDING_PAYMENT,
+        CONFIRMED,
+        CANCELLED,
+        EXPIRED
     }
 }
