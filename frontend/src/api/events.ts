@@ -4,6 +4,7 @@ export interface Event {
   venue: string
   date: string
   availableTickets: number
+  price: number
 }
 
 export async function fetchEvents(): Promise<Event[]> {

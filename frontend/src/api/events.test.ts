@@ -10,8 +10,8 @@ describe('fetchEvents', () => {
 
   it('returns list of events on successful response', async () => {
     const mockEvents = [
-      { id: 1, name: 'Rock Fest 2025', venue: 'Main Stadium', date: '2025-06-15', availableTickets: 5000 },
-      { id: 2, name: 'Jazz Evening', venue: 'Blue Note Club', date: '2025-07-20', availableTickets: 200 },
+      { id: 1, name: 'Rock Fest 2025', venue: 'Main Stadium', date: '2025-06-15', availableTickets: 5000, price: 50 },
+      { id: 2, name: 'Jazz Evening', venue: 'Blue Note Club', date: '2025-07-20', availableTickets: 200, price: 129.99 },
     ]
 
     vi.spyOn(globalThis, 'fetch').mockResolvedValue({

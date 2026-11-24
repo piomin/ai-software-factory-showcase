@@ -35,7 +35,7 @@ describe('useEventList', () => {
 
   it('loads events successfully and updates state', async () => {
     const mockEvents: Event[] = [
-      { id: 1, name: 'Rock Fest 2025', venue: 'Main Stadium', date: '2025-06-15', availableTickets: 5000 },
+      { id: 1, name: 'Rock Fest 2025', venue: 'Main Stadium', date: '2025-06-15', availableTickets: 5000, price: 50 },
     ]
 
     vi.mocked(fetchEvents).mockResolvedValue(mockEvents)
@@ -81,7 +81,7 @@ describe('useEventList', () => {
     vi.mocked(fetchEvents)
       .mockRejectedValueOnce(new Error('First failure'))
       .mockResolvedValueOnce([
-        { id: 1, name: 'Rock Fest 2025', venue: 'Main Stadium', date: '2025-06-15', availableTickets: 5000 },
+        { id: 1, name: 'Rock Fest 2025', venue: 'Main Stadium', date: '2025-06-15', availableTickets: 5000, price: 50 },
       ])
 
     const wrapper = mount(createTestComponent(() => {
@@ -97,13 +97,13 @@ describe('useEventList', () => {
     expect((wrapper.vm as any).loading).toBe(false)
     expect((wrapper.vm as any).error).toBeNull()
     expect((wrapper.vm as any).events).toEqual([
-      { id: 1, name: 'Rock Fest 2025', venue: 'Main Stadium', date: '2025-06-15', availableTickets: 5000 },
+      { id: 1, name: 'Rock Fest 2025', venue: 'Main Stadium', date: '2025-06-15', availableTickets: 5000, price: 50 },
     ])
   })
 
   it('automatically loads events on mount', async () => {
     vi.mocked(fetchEvents).mockResolvedValue([
-      { id: 1, name: 'Rock Fest 2025', venue: 'Main Stadium', date: '2025-06-15', availableTickets: 5000 },
+      { id: 1, name: 'Rock Fest 2025', venue: 'Main Stadium', date: '2025-06-15', availableTickets: 5000, price: 50 },
     ])
 
     const wrapper = mount(createTestComponent(() => {
@@ -117,7 +117,7 @@ describe('useEventList', () => {
 
     expect((wrapper.vm as any).loading).toBe(false)
     expect((wrapper.vm as any).events).toEqual([
-      { id: 1, name: 'Rock Fest 2025', venue: 'Main Stadium', date: '2025-06-15', availableTickets: 5000 },
+      { id: 1, name: 'Rock Fest 2025', venue: 'Main Stadium', date: '2025-06-15', availableTickets: 5000, price: 50 },
     ])
     expect((wrapper.vm as any).error).toBeNull()
   })
