@@ -62,4 +62,27 @@ class EventServiceClient {
             throw e;
         }
     }
+
+    void releaseTickets(long eventId, int tickets) {
+        try {
+            URI uri = URI.create("/api/events/" + eventId + "/ticket-release");
+            restClient.post()
+                    .uri(uri)
+                    .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                    .body(new TicketReleaseRequest(tickets))
+                    .retrieve()
+                    .onStatus(status -> status.value() == 404, (req, res) -> {
+                        throw new EventNotFoundException(eventId);
+                    })
+                    .onStatus(status -> status.value() == 503, (req, res) -> {
+                        throw new ServiceUnavailableException("Event service is unavailable");
+                    })
+                    .toBodilessEntity();
+        } catch (RestClientResponseException e) {
+            if (e.getStatusCode().value() == 503) {
+                throw new ServiceUnavailableException("Event service is unavailable");
+            }
+            throw e;
+        }
+    }
 }
