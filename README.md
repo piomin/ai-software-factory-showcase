@@ -23,6 +23,11 @@ This builds both services and runs all tests, including the frontend build and t
 
 This repository uses CircleCI for continuous integration. The build runs on every pull request and on `master` branch, compiling the whole repository and running all automated tests (backend and frontend).
 
+The CI workflow includes additional validation steps (all run offline, no cluster required):
+- Skaffold configuration (`skaffold.yaml`) is validated for syntax and consistency with `skaffold diagnose --yaml-only`
+- Kubernetes manifests in `k8s/` are validated against the Kubernetes schema with `kubeconform -strict`, with no cluster reachable
+- Image names used in Skaffold artifacts must match those referenced in Kubernetes manifests
+
 To run the same build locally:
 
 ```bash
