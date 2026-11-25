@@ -44,6 +44,23 @@ class BookingExceptionHandler {
         return problemDetail;
     }
 
+    @ExceptionHandler(PaymentConflictException.class)
+    ProblemDetail handlePaymentConflict(PaymentConflictException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.CONFLICT.value());
+        problemDetail.setTitle("Payment Conflict");
+        problemDetail.setDetail(ex.getMessage());
+        return problemDetail;
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    ProblemDetail handleInvalidCard(IllegalArgumentException ex) {
+        // CardNumber.of messages describe the rule that failed and never echo the submitted number.
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST.value());
+        problemDetail.setTitle("Invalid Card");
+        problemDetail.setDetail(ex.getMessage());
+        return problemDetail;
+    }
+
     @ExceptionHandler(ConstraintViolationException.class)
     ProblemDetail handleConstraintViolation(ConstraintViolationException ex) {
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST.value());
