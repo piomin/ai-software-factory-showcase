@@ -18,11 +18,14 @@ class BookingController {
 
     private final BookingRepository bookingRepository;
     private final EventServiceClient eventServiceClient;
+    private final BookingService bookingService;
     private final Clock clock;
 
-    BookingController(BookingRepository bookingRepository, EventServiceClient eventServiceClient, Clock clock) {
+    BookingController(BookingRepository bookingRepository, EventServiceClient eventServiceClient,
+                      BookingService bookingService, Clock clock) {
         this.bookingRepository = bookingRepository;
         this.eventServiceClient = eventServiceClient;
+        this.bookingService = bookingService;
         this.clock = clock;
     }
 
@@ -50,5 +53,10 @@ class BookingController {
         return bookingRepository.findById(id)
                 .map(booking -> ResponseEntity.ok(BookingResponse.from(booking)))
                 .orElseThrow(() -> new BookingNotFoundException(id));
+    }
+
+    @PostMapping("/{id}/cancel")
+    ResponseEntity<BookingResponse> cancelBooking(@PathVariable long id) {
+        return ResponseEntity.ok(BookingResponse.from(bookingService.cancel(id)));
     }
 }
