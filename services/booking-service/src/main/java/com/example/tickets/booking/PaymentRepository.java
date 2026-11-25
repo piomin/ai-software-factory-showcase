@@ -7,6 +7,8 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
     List<Payment> findByBookingId(long bookingId);
 
+    List<Payment> findByBookingIdAndStatus(long bookingId, Payment.Status status);
+
     boolean existsByBookingIdAndStatus(long bookingId, Payment.Status status);
 
     default boolean existsSuccessByBookingId(long bookingId) {
