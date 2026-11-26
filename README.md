@@ -11,6 +11,26 @@ services/booking-service/        Spring Boot, creates and reads bookings
 frontend/                        Vue 3 + Vite + TypeScript, built by Maven
 ```
 
+## Prerequisites
+
+- **JDK 25** is required. The root `pom.xml` sets `java.version` to `25`, which is passed to the compiler as `<release>`. With an older JDK the build fails with `release version 25 not supported`.
+- **Maven 3.9+**, running on JDK 25: `JAVA_HOME` must point to a JDK 25 installation.
+- **Node.js** does not need to be installed globally for the Maven build, because `frontend-maven-plugin` downloads it. It is needed only to run the frontend dev server (`npm run dev`).
+
+Check your setup. Both commands must report Java 25:
+
+```bash
+java -version
+mvn -v
+```
+
+If you need to install JDK 25, for example:
+
+```bash
+sdk install java 25-tem      # SDKMAN
+brew install openjdk@25      # Homebrew (macOS)
+```
+
 ## Build
 
 ```bash
