@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 class EventServiceClientConfiguration {
 
-    @Value("${event-service.url:http://localhost:8080}")
+    @Value("${event-service.url:http://localhost:8081}")
     private String baseUrl;
 
     @Bean

@@ -36,6 +36,16 @@ mvn -B verify
 
 ## Run
 
+Start each component in its own terminal. Each one uses its own port:
+
+| Component | Port |
+|---|---|
+| event-service | 8081 |
+| booking-service | 8082 |
+| frontend dev server | 5173 (proxies `/api/events` to 8081 and `/api/bookings` to 8082) |
+
+To use a different port for a service, set `SERVER_PORT`. If you move event-service, set `EVENT_SERVICE_URL` for booking-service to the new address.
+
 ### Event Service
 
 ```bash
