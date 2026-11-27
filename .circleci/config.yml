@@ -52,7 +52,7 @@ commands:
           name: Validate image consistency
           command: |
             # Extract image names from skaffold.yaml artifacts section
-            SKAFFOLD_IMAGES=$(grep -A20 'artifacts:' skaffold.yaml | grep '^\s*- image:' | sed 's/.*image:\s*//' | sed 's/\s*$//' | sort -u)
+            SKAFFOLD_IMAGES=$(sed -n '/^  artifacts:/,/^[a-z]/p' skaffold.yaml | grep '^\s*- image:' | sed 's/.*image:\s*//' | sed 's/\s*$//' | sort -u)
             
             # Extract image names from k8s manifests (base name without tag)
             MANIFEST_IMAGES=$(grep 'image:' k8s/manifests.yaml | sed 's/.*image:\s*//' | sed 's/\s*$//' | sed 's/:[^:]*$//' | sort -u)
