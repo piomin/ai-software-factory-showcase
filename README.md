@@ -36,32 +36,12 @@ mvn -B verify
 
 ## Run
 
-Start each component in its own terminal. Each one uses its own port:
-
-| Component | Port |
-|---|---|
-| event-service | 8081 |
-| booking-service | 8082 |
-| frontend dev server | 5173 (proxies `/api/events` to 8081 and `/api/bookings` to 8082) |
-
-To use a different port for a service, set `SERVER_PORT`. If you move event-service, set `EVENT_SERVICE_URL` for booking-service to the new address.
-
-### Event Service
+Run each in its own terminal:
 
 ```bash
-mvn spring-boot:run -pl services/event-service
-```
-
-### Booking Service
-
-```bash
-mvn spring-boot:run -pl services/booking-service
-```
-
-### Frontend
-
-```bash
-cd frontend && npm install && npm run dev
+mvn spring-boot:run -pl services/event-service     # port 8081
+mvn spring-boot:run -pl services/booking-service   # port 8082
+cd frontend && npm install && npm run dev          # port 5173
 ```
 
 Then open http://localhost:5173 in your browser.
