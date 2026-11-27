@@ -20,6 +20,14 @@ build:
           - BP_JVM_VERSION=25
           - BP_MAVEN_BUILT_MODULE=services/booking-service
           - BP_MAVEN_BUILD_ARGUMENTS=-pl services/booking-service -am -DskipTests package
+    - image: gateway
+      context: .
+      buildpacks:
+        builder: paketobuildpacks/builder-jammy-base
+        env:
+          - BP_JVM_VERSION=25
+          - BP_MAVEN_BUILT_MODULE=gateway
+          - BP_MAVEN_BUILD_ARGUMENTS=-pl gateway -am -DskipTests package
     - image: frontend
       context: frontend
       docker:

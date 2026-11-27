@@ -1,5 +1,5 @@
 server:
-  port: ${PORT:8080}
+  port: ${SERVER_PORT:8080}
 
 spring:
   application:
@@ -12,11 +12,11 @@ spring:
         webflux:
           routes:
             - id: event-service
-              uri: ${EVENT_SERVICE_URL:http://event-service:8080}
+              uri: ${EVENT_SERVICE_URL:http://localhost:8081}
               predicates:
                 - Path=/api/events,/api/events/**
             - id: booking-service
-              uri: ${BOOKING_SERVICE_URL:http://booking-service:8080}
+              uri: ${BOOKING_SERVICE_URL:http://localhost:8082}
               predicates:
                 - Path=/api/bookings,/api/bookings/**
 
