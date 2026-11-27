@@ -8,6 +8,7 @@ A ticket booking system built with Spring Boot microservices and Vue 3 frontend.
 pom.xml                          parent / aggregator (packaging pom)
 services/event-service/          Spring Boot, lists events (concerts, shows)
 services/booking-service/        Spring Boot, creates and reads bookings
+gateway/                         Spring Cloud Gateway, single entry point for the frontend
 frontend/                        Vue 3 + Vite + TypeScript, built by Maven
 ```
 
@@ -41,10 +42,11 @@ Run each in its own terminal:
 ```bash
 mvn spring-boot:run -pl services/event-service     # port 8081
 mvn spring-boot:run -pl services/booking-service   # port 8082
+mvn spring-boot:run -pl gateway                    # port 8080
 cd frontend && npm install && npm run dev          # port 5173
 ```
 
-Then open http://localhost:5173 in your browser.
+Then open http://localhost:5173 in your browser. The frontend calls only the gateway.
 
 ## Database
 
