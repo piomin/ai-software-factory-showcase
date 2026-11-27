@@ -90,6 +90,8 @@ spec:
           env:
             - name: SERVER_PORT
               value: "8080"
+            - name: EVENT_SERVICE_URL
+              value: "http://event-service:8080"
             - name: BP_JVM_VERSION
               value: "25"
           livenessProbe:

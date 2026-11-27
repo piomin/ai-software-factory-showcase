@@ -36,22 +36,12 @@ mvn -B verify
 
 ## Run
 
-### Event Service
+Run each in its own terminal:
 
 ```bash
-mvn spring-boot:run -pl services/event-service
-```
-
-### Booking Service
-
-```bash
-mvn spring-boot:run -pl services/booking-service
-```
-
-### Frontend
-
-```bash
-cd frontend && npm install && npm run dev
+mvn spring-boot:run -pl services/event-service     # port 8081
+mvn spring-boot:run -pl services/booking-service   # port 8082
+cd frontend && npm install && npm run dev          # port 5173
 ```
 
 Then open http://localhost:5173 in your browser.
